@@ -1,5 +1,6 @@
-const express = require('express');
-const routes = require('./routes');
+// Só é possivel usar a sintaxe import por usar a biblioteca sucrase
+import express from 'express';
+import routes from './routes';
 
 class App {
   constructor() {
@@ -17,4 +18,4 @@ class App {
   }
 }
 
-module.exports = new App().server;
+export default new App().server;

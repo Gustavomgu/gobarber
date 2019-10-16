@@ -1,9 +1,9 @@
-const { Router } = require('express');
+import Router from 'express';
 
 const routes = new Router();
 
 routes.get('/teste', (request, response) => {
-  return response.json({ message : "Funcionou"});
+  return response.json({ message : "Hello bootcamp 2!"});
 });
 
-module.exports = routes;
+export default routes;
