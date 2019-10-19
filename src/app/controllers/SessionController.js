@@ -1,0 +1,36 @@
+import jwt from 'jsonwebtoken';
+
+import User from '../models/User';
+
+import auth from '../../config/auth';
+
+class SessiosController {
+  async store(req, res) {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(400).json({ error: 'User not found!' });
+    }
+
+    if (!(await user.checkPassword(password))) {
+      res.status(400).json({ error: 'Password is invalid!' });
+    }
+
+    const { id, name } = user;
+
+    return res.json({
+      user: {
+        id,
+        name,
+        email,
+      },
+      token: jwt.sign({ id }, auth.secret, {
+        expiresIn: auth.expiresIn,
+      }),
+    });
+  }
+}
+
+export default new SessiosController();
