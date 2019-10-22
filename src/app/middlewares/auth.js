@@ -23,5 +23,5 @@ export default async (request, response, next) => {
     return response.status(401).json({ error: 'Token is not valid!' });
   });
 
-  // return next();
+  return this;
 };
