@@ -6,9 +6,16 @@ import File from '../models/File';
 
 class AppointmentController {
   async index(req, res) {
+    // Para utilizar paginação devo pegar a pagina que esta sendo acessada aqui
+    const { page = 1 } = req.query;
+
     const appointments = await Appointment.findAll({
       where: { user_id: req.userId, canceled_at: null },
       order: ['date'],
+      // Limitar a quantidade de dados acessado aqui
+      limit: 20,
+      // E definir que ele vai pular a quantidade de paginas x vinte para pegar os proximos
+      offset: (page - 1) * 20,
       attributes: ['id', 'date'],
       include: [
         {
