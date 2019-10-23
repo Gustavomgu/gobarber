@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { startOfHour, parseISO, isBefore } from 'date-fns';
 import Appointment from '../models/Appointment';
 import User from '../models/User';
 
@@ -10,7 +11,7 @@ class AppointmentController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Informações invalidas!' });
+      return res.status(400).json({ error: 'Validations fails!' });
     }
 
     const { provider_id, date } = req.body;
@@ -27,15 +28,38 @@ class AppointmentController {
 
     if (!isProvider) {
       return res.status(401).json({
-        error:
-          'Somente é permitido criar agendamentos com provedores de serviço!',
+        error: 'Only service providers can made appointments!',
       });
+    }
+
+    // parseISO converte o valor de data para um objeto data e startOfHour vai pegar a hora de inicio
+    const hourStart = startOfHour(parseISO(date));
+
+    if (isBefore(hourStart, new Date())) {
+      return res.status(400).json({
+        error: 'Past dates are not permited!',
+      });
+    }
+
+    // Checar disponibilidade da data
+    const checkAvability = await Appointment.findOne({
+      where: {
+        provider_id,
+        canceled_at: null,
+        date: hourStart,
+      },
+    });
+
+    if (checkAvability) {
+      return res
+        .status(400)
+        .json({ error: 'Appointment date is not available!' });
     }
 
     const appointment = await Appointment.create({
       user_id: req.userId,
       provider_id,
-      date,
+      date: hourStart,
     });
 
     return res.json(appointment);
