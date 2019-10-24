@@ -116,8 +116,6 @@ class AppointmentController {
     await Notification.create({
       content: `Novo agendamento de ${user.name} para dia ${fomarttedDate}`,
       user: provider_id,
-    }).catch(err => {
-      console.log(err);
     });
 
     return res.json(appointment);
