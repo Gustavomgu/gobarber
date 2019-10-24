@@ -1,8 +1,10 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import Appointment from '../models/Appointment';
 import User from '../models/User';
 import File from '../models/File';
+import Notification from '../schemas/Notification';
 
 class AppointmentController {
   async index(req, res) {
@@ -51,6 +53,12 @@ class AppointmentController {
      * Checando se provider_id é um provider
      */
 
+    if (provider_id === req.userId) {
+      return res
+        .status(400)
+        .json({ error: 'You cannot made a appointment for yourself!' });
+    }
+
     const isProvider = await User.findOne({
       where: {
         id: provider_id,
@@ -92,6 +100,24 @@ class AppointmentController {
       user_id: req.userId,
       provider_id,
       date: hourStart,
+    });
+
+    /**
+     * Notify provider
+     */
+
+    const user = await User.findByPk(req.userId);
+    const fomarttedDate = format(
+      hourStart,
+      "'dia' dd 'de' MMMM', às ' H:mm'h'",
+      { locale: pt }
+    );
+
+    await Notification.create({
+      content: `Novo agendamento de ${user.name} para dia ${fomarttedDate}`,
+      user: provider_id,
+    }).catch(err => {
+      console.log(err);
     });
 
     return res.json(appointment);
