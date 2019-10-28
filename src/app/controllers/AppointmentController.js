@@ -21,7 +21,7 @@ class AppointmentController {
       limit: 20,
       // E definir que ele vai pular a quantidade de paginas x vinte para pegar os proximos
       offset: (page - 1) * 20,
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'past', 'cancelable'],
       include: [
         {
           model: User,

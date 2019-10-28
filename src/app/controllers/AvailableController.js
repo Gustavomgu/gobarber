@@ -30,6 +30,7 @@ class AvailableController {
       },
     });
 
+    // Pode ser implementado cadastro de horas disponiveis para a marcação
     const schedule = [
       '08:00',
       '09:00',
